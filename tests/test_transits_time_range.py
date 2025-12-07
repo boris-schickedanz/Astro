@@ -3,6 +3,7 @@
 from datetime import datetime
 
 import pytest
+import config
 from kerykeion import AstrologicalSubject
 
 from transits import TransitsCalculator
@@ -19,7 +20,7 @@ def sample_chart() -> AstrologicalSubject:
         30,
         "London",
         "GB",
-        geonames_username="BorisAlpine",
+        geonames_username=config.GEONAMES_USERNAME,
     )
 
 

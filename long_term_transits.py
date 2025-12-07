@@ -10,6 +10,7 @@ from collections import defaultdict
 
 from kerykeion import AstrologicalSubject, TransitsTimeRangeFactory
 import pytz
+import config
 
 from models import OUTER_PLANET_POINTS, LONG_TERM_ACTIVE_ASPECTS, NATAL_RELEVANT_PLANETS
 
@@ -88,7 +89,7 @@ class LongTermTransitCalculator:
                     0,
                     location.split(",")[0].strip(),
                     location.split(",")[1].strip() if "," in location else "GB",
-                    geonames_username="borisalpine"
+                    geonames_username=config.GEONAMES_USERNAME
                 )
                 ephemeris_points.append(chart)
             except Exception:

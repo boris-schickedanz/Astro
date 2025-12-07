@@ -198,7 +198,7 @@ pip install -r requirements.txt
 - Always activate the virtual environment before running Python commands: `source .venv/bin/activate`
 - Use the virtual environment's Python executable: `.venv/bin/python main.py`
 - The project uses the kerykeion library with geonames for location lookups
-- Set a custom geonames username in your code for better reliability (see kerykeion documentation)
+- Create a `.env` file in the project root with `GEONAMES_USERNAME=your_username` (register at geonames.org for better reliability)
 
 ## Testing
 This project uses pytest for unit testing. To run the tests:

@@ -10,6 +10,7 @@ from typing import Any, Dict
 from datetime import datetime
 from kerykeion import AstrologicalSubject
 import pytz
+import config
 
 
 class CLIParser:
@@ -115,7 +116,7 @@ Examples:
                         2025, 1, 1, 12, 0,  # dummy date/time
                         transit_city,
                         transit_nation,
-                        geonames_username="BorisAlpine"
+                        geonames_username=config.GEONAMES_USERNAME
                     )
                     location_tz = pytz.timezone(temp_chart.tz_str)
                     transit_datetime = datetime.now(pytz.UTC).astimezone(location_tz)
@@ -142,7 +143,7 @@ Examples:
                         2025, 1, 1, 12, 0,  # dummy date/time
                         args.city,
                         args.nation,
-                        geonames_username="BorisAlpine"
+                        geonames_username=config.GEONAMES_USERNAME
                     )
                     location_tz = pytz.timezone(temp_chart.tz_str)
                     transit_datetime = datetime.now(pytz.UTC).astimezone(location_tz)
@@ -206,7 +207,7 @@ def create_chart_from_args(args: argparse.Namespace) -> AstrologicalSubject:
                 tz_str=args.tz,
                 city=args.city,
                 nation=args.nation,
-                geonames_username="BorisAlpine"
+                geonames_username=config.GEONAMES_USERNAME
             )
         elif args.command == 'collective':
             # For collective, we need to get the datetime first
@@ -224,7 +225,7 @@ def create_chart_from_args(args: argparse.Namespace) -> AstrologicalSubject:
                 tz_str=args.tz,
                 city=args.city,
                 nation=args.nation,
-                geonames_username="BorisAlpine"
+                geonames_username=config.GEONAMES_USERNAME
             )
         else:
             raise ValueError(f"Unknown command: {args.command}")

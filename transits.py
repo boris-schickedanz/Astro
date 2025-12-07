@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional
 
 from kerykeion import AstrologicalSubject, KerykeionChartSVG, SynastryAspects, TransitsTimeRangeFactory
 import pytz
+import config
 
 from models import (
     TRANSIT_ACTIVE_POINTS,
@@ -68,7 +69,7 @@ class TransitsCalculator:
             transit_date.minute,
             location.split(",")[0].strip(),
             location.split(",")[1].strip() if "," in location else "DE",
-            geonames_username="BorisAlpine"
+            geonames_username=config.GEONAMES_USERNAME
         )
 
         # Calculate aspects between transit and natal planets
@@ -131,7 +132,7 @@ class TransitsCalculator:
             transit_date.minute,
             location.split(",")[0].strip(),
             location.split(",")[1].strip() if "," in location else "DE",
-            geonames_username="borisalpine"
+            geonames_username=config.GEONAMES_USERNAME
         )
 
         chart_svg = KerykeionChartSVG(
@@ -195,7 +196,7 @@ class TransitsCalculator:
                 12, 0,  # Noon for consistency
                 location.split(",")[0].strip(),
                 location.split(",")[1].strip() if "," in location else "GB",
-                geonames_username="borisalpine"
+                geonames_username=config.GEONAMES_USERNAME
             )
             planet = getattr(transit_chart, planet_name)
             current_pos = planet.abs_pos
@@ -233,7 +234,7 @@ class TransitsCalculator:
                         12, 0,
                         location.split(",")[0].strip(),
                         location.split(",")[1].strip() if "," in location else "GB",
-                        geonames_username="borisalpine"
+                        geonames_username=config.GEONAMES_USERNAME
                     )
                     planet = getattr(transit_chart, planet_name)
                     check_pos = planet.abs_pos
@@ -275,7 +276,7 @@ class TransitsCalculator:
                         12, 0,
                         location.split(",")[0].strip(),
                         location.split(",")[1].strip() if "," in location else "GB",
-                        geonames_username="borisalpine"
+                        geonames_username=config.GEONAMES_USERNAME
                     )
                     planet = getattr(transit_chart, planet_name)
                     check_pos = planet.abs_pos
@@ -357,7 +358,7 @@ def calculate_current_transits(natal_chart: AstrologicalSubject,
             2025, 1, 1, 12, 0,  # dummy date/time
             location.split(",")[0].strip(),
             location.split(",")[1].strip() if "," in location else "GB",
-            geonames_username="BorisAlpine"
+            geonames_username=config.GEONAMES_USERNAME
         )
         location_tz = pytz.timezone(temp_chart.tz_str)
         current_time = datetime.now(pytz.UTC).astimezone(location_tz)

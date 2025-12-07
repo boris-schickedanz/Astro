@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional
 from kerykeion import AstrologicalSubject
 
 from models import PLANET_NAMES, HOUSE_PREFIXES
+import config
 
 
 class HouseTransitCalculator:
@@ -97,7 +98,7 @@ class HouseTransitCalculator:
             12, 0,  # Noon for consistency
             location.split(",")[0].strip(),
             location.split(",")[1].strip() if "," in location else "GB",
-            geonames_username="borisalpine"
+            geonames_username=config.GEONAMES_USERNAME
         )
 
         return self._get_planet_positions(transit_chart, self.natal_chart)
@@ -141,7 +142,7 @@ class HouseTransitCalculator:
                 12, 0,  # Noon for consistency
                 location.split(",")[0].strip(),
                 location.split(",")[1].strip() if "," in location else "GB",
-                geonames_username="borisalpine"
+                geonames_username=config.GEONAMES_USERNAME
             )
             planet = getattr(transit_chart, planet_name)
             current_pos = planet.abs_pos
@@ -167,7 +168,7 @@ class HouseTransitCalculator:
                         12, 0,
                         location.split(",")[0].strip(),
                         location.split(",")[1].strip() if "," in location else "GB",
-                        geonames_username="borisalpine",
+                        geonames_username=config.GEONAMES_USERNAME,
                     )
                     planet = getattr(transit_chart, planet_name)
                     check_pos = planet.abs_pos
@@ -197,7 +198,7 @@ class HouseTransitCalculator:
                         12, 0,
                         location.split(",")[0].strip(),
                         location.split(",")[1].strip() if "," in location else "GB",
-                        geonames_username="borisalpine"
+                        geonames_username=config.GEONAMES_USERNAME
                     )
                     planet = getattr(transit_chart, planet_name)
                     check_pos = planet.abs_pos
