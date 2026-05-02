@@ -83,14 +83,6 @@ class TransitDisplay:
                 else:
                     print(f"{planet_name}: {planet_data['sign']} {planet_data['sign_num']}°{retrograde}")
 
-    def display_natal_houses(self) -> None:
-        """Display natal house cusps if available."""
-        if self.has_time and self.natal_chart and hasattr(self.natal_chart, 'houses_list'):
-            print("\nNatal Houses:")
-            for i in range(1, 13):
-                house = self.natal_chart.houses_list[i-1]
-                print(f"House {i}: {house.sign} {house.signlon}°")
-
     def display_long_term_transits_header(self, base_date: datetime) -> None:
         """Display the long-term transits header."""
         print("\n" + "="*50)
@@ -213,7 +205,6 @@ def display_transits(natal_chart_name: str, transit_location: str, transit_datet
     display.display_transit_header(transits)
     display.display_significant_transits(transits['significant_transits'])
     display.display_current_planetary_positions(transits['transit_planets'], house_dates)
-    display.display_natal_houses()
     display.display_transit_footer()
 
 

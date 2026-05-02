@@ -62,6 +62,9 @@ HOUSE_NAMES = [
     'Ninth_House', 'Tenth_House', 'Eleventh_House', 'Twelfth_House'
 ]
 
+# Reverse map: kerykeion's planet.house string → 1-12 integer.
+HOUSE_INDEX: Dict[str, int] = {name: i + 1 for i, name in enumerate(HOUSE_NAMES)}
+
 HOUSE_PREFIXES = [
     'first', 'second', 'third', 'fourth', 'fifth', 'sixth',
     'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth'

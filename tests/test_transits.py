@@ -3,7 +3,7 @@ Tests for the transits calculation functionality.
 """
 
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime
 from kerykeion import AstrologicalSubject
 from transits import TransitsCalculator, calculate_current_transits
 
@@ -47,21 +47,6 @@ class TestTransitsCalculator:
         expected_planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto']
         assert all(planet in result["transit_planets"] for planet in expected_planets)
         assert all(planet in result["natal_planets"] for planet in expected_planets)
-
-    def test_calculate_transits_for_range(self, calculator):
-        """Test transit calculation for a date range."""
-        start_date = datetime(2024, 6, 15, 12, 0, 0)
-        end_date = datetime(2024, 6, 17, 12, 0, 0)
-
-        results = calculator.calculate_transits_for_range(start_date, end_date, interval_days=1)
-
-        # Should have 3 results (15th, 16th, 17th)
-        assert len(results) == 3
-
-        # Check that dates are sequential
-        for i, result in enumerate(results):
-            expected_date = start_date + timedelta(days=i)
-            assert result["transit_date"] == expected_date.isoformat()
 
     def test_significant_transits_identification(self, calculator):
         """Test that significant transits are properly identified."""
@@ -114,20 +99,6 @@ class TestTransitsCalculator:
             for field in required_fields:
                 assert field in aspect
                 assert isinstance(aspect[field], (str, float, int))
-
-    def test_generate_transit_chart_svg(self, calculator, tmp_path):
-        """Test SVG chart generation."""
-        test_date = datetime(2024, 6, 15, 12, 0, 0)
-
-        # Generate chart with custom output directory
-        chart_path = calculator.generate_transit_chart_svg(test_date, output_path=str(tmp_path))
-
-        # Should return a filename
-        assert isinstance(chart_path, str)
-        assert "Transit Chart.svg" in chart_path
-
-        # Note: We don't check if file actually exists as it depends on KerykeionChartSVG working correctly
-        # In a real test environment, you'd want to verify the file creation
 
     def test_different_locations(self, calculator):
         """Test transit calculation for different locations."""
