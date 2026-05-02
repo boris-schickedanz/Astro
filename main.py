@@ -69,7 +69,7 @@ def main() -> None:
     display_transits(chart.name, location, transit_datetime, transits, house_dates, has_time, chart)
 
     long_term = transit_calculator.calculate_long_term_transits(
-        transit_datetime, years_before=2, years_after=10, location=location
+        transit_datetime, years_before=2, years_after=10
     )
     display_long_term_transits(transit_datetime, long_term)
 

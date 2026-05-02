@@ -8,8 +8,9 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from kerykeion import AstrologicalSubject
+from kerykeion.utilities import get_houses_list, get_planet_house
 
-from models import PLANET_NAMES, HOUSE_PREFIXES
+from models import PLANET_NAMES, HOUSE_INDEX
 import config
 
 
@@ -105,11 +106,7 @@ class HouseTransitCalculator:
 
     def _get_natal_house_cusps(self) -> List[float]:
         """Get the absolute positions of natal house cusps."""
-        houses = []
-        for i in range(1, 13):
-            house = getattr(self.natal_chart, f"{HOUSE_PREFIXES[i-1]}_house")
-            houses.append(house.abs_pos)
-        return houses
+        return [h.abs_pos for h in get_houses_list(self.natal_chart)]
 
     def _find_house_entry_date(self, planet_name: str, target_house: int, base_date: datetime,
                               location: str, natal_houses: List[float], direction: str = 'backward',
@@ -216,31 +213,8 @@ class HouseTransitCalculator:
         return None
 
     def _determine_house(self, planet_abs_pos: float, natal_houses: List[float]) -> int:
-        """
-        Determine which natal house a planet is in based on its absolute position.
-
-        Args:
-            planet_abs_pos: Planet's absolute position in degrees
-            natal_houses: List of natal house cusp positions
-
-        Returns:
-            House number (1-12)
-        """
-        for i in range(12):
-            current_house_start = natal_houses[i]
-            next_house_start = natal_houses[(i + 1) % 12]
-
-            # Handle the wrap-around at 360/0 degrees
-            if current_house_start < next_house_start:
-                # Normal case
-                if current_house_start <= planet_abs_pos < next_house_start:
-                    return i + 1
-            else:
-                # Wrap-around case (e.g., House 12 to House 1)
-                if current_house_start <= planet_abs_pos or planet_abs_pos < next_house_start:
-                    return i + 1
-
-        return 1  # Default fallback
+        """Which natal house contains the given absolute longitude."""
+        return HOUSE_INDEX[get_planet_house(planet_abs_pos, natal_houses)]
 
     def _get_planet_positions(self, chart: AstrologicalSubject, natal_chart: Optional[AstrologicalSubject] = None) -> Dict[str, Dict[str, Any]]:
         """
@@ -253,6 +227,8 @@ class HouseTransitCalculator:
         Returns:
             Dictionary of planet positions
         """
+        natal_houses = self._get_natal_house_cusps() if natal_chart else None
+
         positions = {}
         for planet_name in PLANET_NAMES:
             planet = getattr(chart, planet_name)
@@ -265,16 +241,8 @@ class HouseTransitCalculator:
                 'retrograde': planet.retrograde
             }
 
-            # If natal chart is provided, calculate which natal house the planet is in
-            if natal_chart:
-                # Get natal house cusps
-                natal_houses = self._get_natal_house_cusps()
-
-                # Find which natal house the planet is in
-                planet_abs_pos = planet.abs_pos
-                house_num = self._determine_house(planet_abs_pos, natal_houses)
-
-                planet_data['natal_house'] = house_num
+            if natal_houses is not None:
+                planet_data['natal_house'] = self._determine_house(planet.abs_pos, natal_houses)
 
             positions[planet_name.capitalize()] = planet_data
 

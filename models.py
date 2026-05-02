@@ -134,19 +134,3 @@ def calculate_lot_of_fortune(chart) -> float:
         lot_pos += 360
 
     return lot_pos
-
-
-def get_zodiac_sign_from_position(position: float) -> str:
-    """
-    Get zodiac sign from ecliptical position.
-
-    Args:
-        position: Position in degrees (0-360)
-
-    Returns:
-        Zodiac sign name
-    """
-    signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
-             'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
-    sign_index = int(position // 30)
-    return signs[sign_index]

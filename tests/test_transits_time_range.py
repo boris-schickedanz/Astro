@@ -32,7 +32,6 @@ def test_long_term_transits_structure(sample_chart: AstrologicalSubject) -> None
         base_date,
         years_before=1,
         years_after=1,
-        location="London, GB",
     )
 
     assert set(result.keys()) == {"active", "recent_past", "upcoming", "base_date"}
@@ -47,7 +46,6 @@ def test_long_term_transits_outer_planet_filter(sample_chart: AstrologicalSubjec
         base_date,
         years_before=2,
         years_after=2,
-        location="London, GB",
     )
 
     all_transits = (
@@ -88,7 +86,6 @@ def test_long_term_transits_years_after_parameter(sample_chart: AstrologicalSubj
         base_date,
         years_before=2,
         years_after=2,
-        location="London, GB",
     )
 
     # Test with 10 years - should have more or same upcoming transits
@@ -96,7 +93,6 @@ def test_long_term_transits_years_after_parameter(sample_chart: AstrologicalSubj
         base_date,
         years_before=2,
         years_after=10,
-        location="London, GB",
     )
 
     upcoming_2 = result_2_years.get("upcoming", [])

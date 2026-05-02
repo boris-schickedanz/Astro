@@ -68,11 +68,11 @@ class TransitsCalculator:
         return self.house_calculator.calculate_planet_house_dates(base_date, location)
 
     def calculate_long_term_transits(self, base_date: datetime,
-                                     years_before: int = 2, years_after: int = 2,
-                                     location: str = DEFAULT_LOCATION) -> Dict[str, Any]:
+                                     years_before: int = 2,
+                                     years_after: int = 2) -> Dict[str, Any]:
         """Outer-planet aspects to natal across a multi-year window."""
         return self.long_term_calculator.calculate_long_term_transits(
-            base_date, years_before, years_after, location
+            base_date, years_before, years_after
         )
 
 

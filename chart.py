@@ -5,9 +5,12 @@ This module handles the creation and display of natal (birth) charts,
 including planet positions, house cusps, and aspects.
 """
 
-from typing import Dict, Any, List
-from kerykeion import AstrologicalSubject, NatalAspects
-from models import PLANET_NAMES, HOUSE_PREFIXES, HOUSE_NAMES, ADDITIONAL_POINTS, POINT_DISPLAY_NAMES, calculate_lot_of_fortune, get_zodiac_sign_from_position
+from typing import Dict, Any, List, get_args
+from kerykeion import AstrologicalSubject, NatalAspects, Sign
+from kerykeion.utilities import get_houses_list, get_planet_house
+from models import PLANET_NAMES, HOUSE_INDEX, ADDITIONAL_POINTS, POINT_DISPLAY_NAMES, calculate_lot_of_fortune
+
+_SIGNS = get_args(Sign)
 
 
 class ChartDisplay:
@@ -50,24 +53,13 @@ class ChartDisplay:
         """Display planet positions and house placements."""
         print("\nPlanets:")
 
-        # Initialize variables
-        house_dict = {}
-        houses = []
-
-        if self.has_time:
-            # Create house mapping
-            house_dict = {name: i+1 for i, name in enumerate(HOUSE_NAMES)}
-
-            # Get house cusps
-            for i in range(1, 13):
-                house = getattr(self.chart, f"{HOUSE_PREFIXES[i-1]}_house")
-                houses.append(house.abs_pos)
+        houses = [h.abs_pos for h in get_houses_list(self.chart)] if self.has_time else []
 
         for planet_name in PLANET_NAMES:
             planet = getattr(self.chart, planet_name)
-            
+
             if self.has_time:
-                house_num = house_dict.get(planet.house, 0)
+                house_num = HOUSE_INDEX.get(planet.house, 0)
 
                 # Check if on cusp (within 2 degrees of house boundary)
                 cusp_orb = 2
@@ -104,27 +96,16 @@ class ChartDisplay:
         """Display additional celestial points (nodes, lilith, chiron, lot of fortune)."""
         print("\nAdditional Points:")
 
-        house_dict = {}
-        houses = []
-        
-        if self.has_time:
-            # Create house mapping
-            house_dict = {name: i+1 for i, name in enumerate(HOUSE_NAMES)}
-
-            # Get house cusps
-            houses = []
-            for i in range(1, 13):
-                house = getattr(self.chart, f"{HOUSE_PREFIXES[i-1]}_house")
-                houses.append(house.abs_pos)
+        houses = [h.abs_pos for h in get_houses_list(self.chart)] if self.has_time else []
 
         for point_name in ADDITIONAL_POINTS:
             if not hasattr(self.chart, point_name):
                 continue
-                
+
             point = getattr(self.chart, point_name)
-            
+
             if self.has_time:
-                house_num = house_dict.get(point.house, 0)
+                house_num = HOUSE_INDEX.get(point.house, 0)
 
                 # Check if on cusp (within 2 degrees of house boundary)
                 cusp_orb = 2
@@ -160,24 +141,13 @@ class ChartDisplay:
 
         # Display Lot of Fortune
         lot_pos = calculate_lot_of_fortune(self.chart)
-        lot_sign = get_zodiac_sign_from_position(lot_pos)
-        sign_start = (['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
-                      'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'].index(lot_sign)) * 30
-        degrees_in_sign = int(lot_pos - sign_start)
-        minutes = int((lot_pos - sign_start - degrees_in_sign) * 60)
+        lot_sign = _SIGNS[int(lot_pos // 30)]
+        lot_pos_in_sign = lot_pos % 30
+        degrees_in_sign = int(lot_pos_in_sign)
+        minutes = int((lot_pos_in_sign - degrees_in_sign) * 60)
 
         if self.has_time:
-            # Determine house for Lot of Fortune
-            lot_house_num = 1
-            for i, house_pos in enumerate(houses):
-                next_house_pos = houses[(i + 1) % 12]
-                if i == 11:  # Last house, check if between last house and first house
-                    if house_pos <= lot_pos or lot_pos < next_house_pos:
-                        lot_house_num = i + 1
-                        break
-                elif house_pos <= lot_pos < next_house_pos:
-                    lot_house_num = i + 1
-                    break
+            lot_house_num = HOUSE_INDEX[get_planet_house(lot_pos, houses)]
 
             # Check if on cusp
             house_start = houses[(lot_house_num - 1) % 12]
@@ -202,8 +172,7 @@ class ChartDisplay:
     def display_houses(self) -> None:
         """Display house cusp positions."""
         print("\nHouses:")
-        for i in range(1, 13):
-            house = getattr(self.chart, f"{HOUSE_PREFIXES[i-1]}_house")
+        for i, house in enumerate(get_houses_list(self.chart), start=1):
             degrees = int(house.position)
             minutes = int((house.position - degrees) * 60)
             print(f"House {i}: {house.sign} {degrees}°{minutes:02d}'")

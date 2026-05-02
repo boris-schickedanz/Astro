@@ -8,9 +8,8 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List
 from collections import defaultdict
 
-from kerykeion import AstrologicalSubject, TransitsTimeRangeFactory
+from kerykeion import AstrologicalSubject, EphemerisDataFactory, TransitsTimeRangeFactory
 import pytz
-import config
 
 from models import OUTER_PLANET_POINTS, LONG_TERM_ACTIVE_ASPECTS, NATAL_RELEVANT_PLANETS
 
@@ -30,8 +29,7 @@ class LongTermTransitCalculator:
         self.natal_chart = natal_chart
 
     def calculate_long_term_transits(self, base_date: datetime,
-                                   years_before: int = 2, years_after: int = 2,
-                                   location: str = "Greenwich, GB") -> Dict[str, Any]:
+                                   years_before: int = 2, years_after: int = 2) -> Dict[str, Any]:
         """
         Calculate significant long-term transits from outer planets.
 
@@ -39,20 +37,21 @@ class LongTermTransitCalculator:
         form major aspects with natal planets. It tracks complete transit cycles including
         retrograde patterns.
 
+        Transit aspects are location-independent (zodiac math), so ephemeris points are
+        generated at Greenwich/UTC — no geonames lookups needed.
+
         Args:
             base_date: The base date for the transit calculation (typically today)
             years_before: Number of years before base_date to check (default: 2)
             years_after: Number of years after base_date to check (default: 2)
-            location: Location for transit calculations
 
         Returns:
             List of significant long-term transits with date ranges, organized by status
         """
-                # Generate monthly ephemeris points across the requested range
         start_date = base_date - timedelta(days=years_before * 365)
         end_date = base_date + timedelta(days=years_after * 365)
 
-        ephemeris_points = self._generate_ephemeris_points(start_date, end_date, location)
+        ephemeris_points = self._generate_ephemeris_points(start_date, end_date)
 
         if not ephemeris_points:
             return {
@@ -73,31 +72,21 @@ class LongTermTransitCalculator:
 
         return categorized_transits
 
-    def _generate_ephemeris_points(self, start_date: datetime, end_date: datetime, location: str) -> List[AstrologicalSubject]:
-        """Generate monthly ephemeris points for the date range."""
-        ephemeris_points: List[AstrologicalSubject] = []
+    def _generate_ephemeris_points(self, start_date: datetime, end_date: datetime) -> List[AstrologicalSubject]:
+        """Generate monthly ephemeris points across the requested range, offline."""
+        # Strip tzinfo: EphemerisDataFactory expects naive datetimes paired with tz_str.
+        start_naive = start_date.replace(tzinfo=None) if start_date.tzinfo else start_date
+        end_naive = end_date.replace(tzinfo=None) if end_date.tzinfo else end_date
 
-        current_date = start_date
-        while current_date <= end_date:
-            try:
-                chart = AstrologicalSubject(
-                    f"Transit_{current_date.strftime('%Y%m%d')}",
-                    current_date.year,
-                    current_date.month,
-                    current_date.day,
-                    12,
-                    0,
-                    location.split(",")[0].strip(),
-                    location.split(",")[1].strip() if "," in location else "GB",
-                    geonames_username=config.GEONAMES_USERNAME
-                )
-                ephemeris_points.append(chart)
-            except Exception:
-                pass  # Skip dates that can't be calculated
-
-            current_date += timedelta(days=30)  # Monthly instead of weekly
-
-        return ephemeris_points
+        factory = EphemerisDataFactory(
+            start_datetime=start_naive,
+            end_datetime=end_naive,
+            step_type="days",
+            step=30,
+            disable_chiron_and_lilith=True,
+            max_days=None,
+        )
+        return factory.get_ephemeris_data_as_astrological_subjects()
 
     def _calculate_transit_periods(self, ephemeris_points: List[AstrologicalSubject]) -> List[Dict[str, Any]]:
         """Calculate transit periods from ephemeris data."""
@@ -122,7 +111,7 @@ class LongTermTransitCalculator:
         transit_periods: List[Dict[str, Any]] = []
         current_transits: Dict[tuple, Dict[str, Any]] = {}
 
-        outer_planet_set = {name for name in OUTER_PLANET_POINTS}
+        outer_planet_set = set(OUTER_PLANET_POINTS)
 
         dates = transit_model.dates or []
         moments = transit_model.transits or []
